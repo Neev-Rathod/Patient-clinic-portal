@@ -1,21 +1,20 @@
-// frontend/src/components/Chat.jsx
-import React, { useState, useEffect } from 'react';
+// src/components/Chat.jsx
+import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Chat = () => {
   const [chatInput, setChatInput] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
+  const navigate = useNavigate();
   
-  // Function to send a message
   const sendMessage = async () => {
     if (!chatInput.trim()) return;
     const token = localStorage.getItem('token');
     try {
-      // Send the user message to the backend
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/chat/send`, { text: chatInput }, {
         headers: { Authorization: token }
       });
-      // Update the chat history with the response (both user and ai messages)
       setChatHistory(prev => [...prev, ...res.data.messages]);
       setChatInput('');
     } catch (error) {
@@ -24,8 +23,14 @@ const Chat = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('clinicToken');
+    navigate('/');
+  };
+
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto relative">
       <h2 className="text-2xl mb-4">Health Chat</h2>
       <div className="border p-4 mb-4 h-96 overflow-y-scroll">
         {chatHistory.map((msg, index) => (
@@ -44,6 +49,7 @@ const Chat = () => {
         />
         <button onClick={sendMessage} className="bg-blue-600 text-white p-2 ml-2">Send</button>
       </div>
+    
     </div>
   );
 };

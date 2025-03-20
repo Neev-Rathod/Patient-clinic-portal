@@ -1,7 +1,7 @@
-// frontend/src/components/Login.jsx
+// src/components/Login.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [name, setName] = useState('');
@@ -13,7 +13,7 @@ const Login = () => {
     try {
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, { name, pass });
       localStorage.setItem('token', res.data.token);
-      navigate('/');
+      navigate('/chat');
     } catch (error) {
       console.error(error);
       alert('Login failed');
@@ -40,6 +40,9 @@ const Login = () => {
           className="mb-2 p-2 border"
           required
         />
+        <div className="mb-2 text-right text-sm">
+          Don't have an account? <Link to="/register" className="text-blue-600">Register</Link>
+        </div>
         <button type="submit" className="bg-blue-600 text-white p-2">Login</button>
       </form>
     </div>

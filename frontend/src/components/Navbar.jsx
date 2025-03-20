@@ -1,21 +1,35 @@
-// frontend/src/components/Navbar.jsx
+// src/components/Navbar.jsx
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-const Navbar = () => (
-  <nav className="bg-blue-600 p-4 text-white">
-    <div className="container mx-auto flex justify-between">
+const Navbar = () => {
+  const token = localStorage.getItem('token') || localStorage.getItem('clinicToken');
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('clinicToken');
+    navigate('/');
+  };
+
+  return (
+    <nav className="bg-blue-600 p-4 text-white flex justify-between items-center">
       <div>
-        <Link to="/" className="mr-4">Chat</Link>
-        <Link to="/login" className="mr-4">Login</Link>
-        <Link to="/register" className="mr-4">Register</Link>
+        <Link to="/" className="mr-4">Home</Link>
+        {!token && (
+          <>
+            <Link to="/login" className="mr-4">Login as Patient</Link>
+            <Link to="/clinic/login" className="mr-4">Login as Clinic</Link>
+          </>
+        )}
       </div>
-      <div>
-        <Link to="/clinic/login" className="mr-4">Clinic Login</Link>
-        <Link to="/clinic/register">Clinic Register</Link>
-      </div>
-    </div>
-  </nav>
-);
+      {token && (
+        <button onClick={handleLogout} className="bg-red-500 px-3 py-1 rounded">
+          Logout
+        </button>
+      )}
+    </nav>
+  );
+};
 
 export default Navbar;

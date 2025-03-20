@@ -1,7 +1,7 @@
-// frontend/src/components/ClinicLogin.jsx
+// src/components/ClinicLogin.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const ClinicLogin = () => {
   const [fullName, setFullName] = useState('');
@@ -13,7 +13,7 @@ const ClinicLogin = () => {
     try {
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/clinic/login`, { fullName, password });
       localStorage.setItem('clinicToken', res.data.token);
-      navigate('/');
+      navigate('/chat');
     } catch (error) {
       console.error(error);
       alert('Clinic login failed');
@@ -40,6 +40,9 @@ const ClinicLogin = () => {
           className="mb-2 p-2 border"
           required
         />
+        <div className="mb-2 text-right text-sm">
+          Don't have an account? <Link to="/clinic/register" className="text-blue-600">Register</Link>
+        </div>
         <button type="submit" className="bg-blue-600 text-white p-2">Login</button>
       </form>
     </div>
