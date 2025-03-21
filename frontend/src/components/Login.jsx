@@ -1,4 +1,3 @@
-// src/components/Login.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
@@ -11,7 +10,8 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, { name, pass });
+      // Send 'password' field instead of 'pass'
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, { name, password: pass });
       localStorage.setItem('token', res.data.token);
       navigate('/chat');
     } catch (error) {

@@ -1,4 +1,3 @@
-// backend/routes/clinic.js
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -10,7 +9,20 @@ router.post('/register', async (req, res) => {
   const { fullName, password, specialization, clinicId, licensePhoto, profilePic, address } = req.body;
   try {
     const hashedPass = await bcrypt.hash(password, 10);
-    const clinic = new Clinic({ fullName, password: hashedPass, specialization, clinicId, licensePhoto, profilePic, address });
+    const clinic = new Clinic({
+      fullName,
+      password: hashedPass,
+      specialization,
+      clinicId,
+      licensePhoto,
+      profilePic,
+      address,
+      numberOfResolved: 0,
+      numberOfQuestions: 0,
+      numberOfEmergencyPrompts: 0,
+      numberOfTotalPrompts: 0,
+      chats: []
+    });
     await clinic.save();
     res.json({ message: 'Clinic registered successfully' });
   } catch (error) {

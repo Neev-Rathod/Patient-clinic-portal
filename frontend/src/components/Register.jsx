@@ -1,4 +1,3 @@
-// frontend/src/components/Register.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -11,7 +10,8 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, { name, pass });
+      // Note: sending 'password' instead of 'pass' to match the updated schema
+      await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, { name, password: pass });
       alert('Registration successful');
       navigate('/login');
     } catch (error) {

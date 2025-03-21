@@ -1,4 +1,3 @@
-// frontend/src/components/ClinicRegister.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -27,6 +26,7 @@ const ClinicRegister = () => {
       return;
     }
     try {
+      // Sending the form data as required by the updated Clinic schema
       await axios.post(`${import.meta.env.VITE_API_URL}/clinic/register`, formData);
       alert('Clinic registered successfully');
       navigate('/clinic/login');
