@@ -12,7 +12,7 @@ const ClinicLogin = () => {
     try {
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/clinic/login`, { fullName, password });
       localStorage.setItem('clinicToken', res.data.token);
-      navigate('/chat');
+      navigate('/clinic/chats');
     } catch (error) {
       console.error(error);
       alert('Clinic login failed');

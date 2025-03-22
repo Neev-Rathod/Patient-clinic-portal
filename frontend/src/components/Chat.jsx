@@ -1,30 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const Chat = () => {
   const [chatInput, setChatInput] = useState('');
-  const [chatHistory, setChatHistory] = useState([]);
+  const [chatList, setChatList] = useState([]);
+  const [selectedChat, setSelectedChat] = useState(null);
   const navigate = useNavigate();
-  
+  const token = localStorage.getItem('token');
+
+  // Fetch user's chats from the backend
+  const fetchChats = async () => {
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/chat/user`, {
+        headers: { Authorization: token }
+      });
+      setChatList(res.data);
+      if (res.data.length > 0 && !selectedChat) setSelectedChat(res.data[0]);
+    } catch (error) {
+      console.error(error);
+      alert("Error fetching chats.");
+    }
+  };
+
+  useEffect(() => {
+    if (!token) navigate('/login');
+    fetchChats();
+  }, [token, navigate]);
+
   const sendMessage = async () => {
     if (!chatInput.trim()) return;
-    const token = localStorage.getItem('token');
     try {
-      // Sends the question text to the backend; expects a chat document in return.
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/chat/send`, 
-        { text: chatInput },
-        { headers: { Authorization: token } }
-      );
-      
-      // Append the new chat object to chatHistory.
-      // The response now contains: questionAsked, answerByAI, and optionally correctedResponseByClinic.
-      setChatHistory(prev => [...prev, res.data]);
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/chat/send`, { text: chatInput }, {
+        headers: { Authorization: token }
+      });
+      // Prepend the new chat to the chat list
+      setChatList(prev => [res.data, ...prev]);
+      setSelectedChat(res.data);
       setChatInput('');
     } catch (error) {
       console.error(error);
-      alert('Failed to send message');
+      alert("Failed to send message");
     }
   };
 
@@ -35,43 +51,58 @@ const Chat = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto relative">
-      <h2 className="text-2xl mb-4">Health Chat</h2>
-      {/* <button onClick={handleLogout} className="absolute top-0 right-0 mt-4 mr-4 bg-red-500 text-white px-3 py-1 rounded">
-        Logout
-      </button> */}
-      <div className="border p-4 mb-4 h-96 overflow-y-scroll">
-        {chatHistory.map((chat, index) => (
-          <div key={index} className="mb-4">
-            <div className="text-right mb-2">
-              <span className="inline-block p-2 rounded bg-blue-100">
-                <strong>You:</strong> {chat.questionAsked}
-              </span>
+    <div className="flex h-screen">
+      {/* Sidebar: List of chats */}
+      <div className="w-1/3 border-r p-4 overflow-y-auto">
+        <h2 className="text-xl mb-4">Your Chats</h2>
+        {chatList.length === 0 ? (
+          <p>No chats available.</p>
+        ) : (
+          chatList.map(chat => (
+            <div 
+              key={chat._id}
+              className={`p-2 mb-2 border cursor-pointer ${selectedChat && selectedChat._id === chat._id ? 'bg-gray-200' : ''}`}
+              onClick={() => setSelectedChat(chat)}
+            >
+              <h3 className="font-bold">{chat.chatName}</h3>
+              <p className="text-sm truncate">{chat.questionAsked}</p>
             </div>
-            <div className="text-left mb-2">
-              <span className="inline-block p-2 rounded bg-gray-200">
-                <strong>AI:</strong> {chat.answerByAI}
-              </span>
-            </div>
-            {chat.correctedResponseByClinic && (
-              <div className="text-left">
-                <span className="inline-block p-2 rounded bg-green-200">
-                  <strong>Clinic:</strong> {chat.correctedResponseByClinic}
-                </span>
-              </div>
-            )}
-          </div>
-        ))}
+          ))
+        )}
+        <button onClick={handleLogout} className="mt-4 bg-red-500 text-white px-3 py-1 rounded">
+          Logout
+        </button>
       </div>
-      <div className="flex">
-        <input 
-          type="text" 
-          value={chatInput} 
-          onChange={(e) => setChatInput(e.target.value)} 
-          className="flex-1 p-2 border" 
-          placeholder="Ask your health question..."
-        />
-        <button onClick={sendMessage} className="bg-blue-600 text-white p-2 ml-2">Send</button>
+      
+      {/* Main panel: Chat details */}
+      <div className="flex-1 p-4 overflow-y-auto">
+        {selectedChat ? (
+          <div>
+            <h2 className="text-2xl mb-2">{selectedChat.chatName}</h2>
+            <div className="mb-4">
+              <p><strong>Question:</strong> {selectedChat.questionAsked}</p>
+              <p><strong>AI Response:</strong> {selectedChat.answerByAI}</p>
+              {selectedChat.correctedResponseByClinic && (
+                <p><strong>Clinic Response:</strong> {selectedChat.correctedResponseByClinic}</p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <p>No chat selected.</p>
+        )}
+        {/* Input for new message */}
+        <div className="flex mt-4">
+          <input 
+            type="text" 
+            value={chatInput} 
+            onChange={(e) => setChatInput(e.target.value)} 
+            className="flex-1 p-2 border" 
+            placeholder="Ask your health question..."
+          />
+          <button onClick={sendMessage} className="bg-blue-600 text-white p-2 ml-2">
+            Send
+          </button>
+        </div>
       </div>
     </div>
   );

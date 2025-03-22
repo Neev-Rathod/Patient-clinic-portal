@@ -6,6 +6,10 @@ const chatSchema = new mongoose.Schema({
     ref: 'User', 
     required: true 
   },
+  chatName: { 
+    type: String, 
+    required: true 
+  },
   questionAsked: { 
     type: String, 
     required: true 
@@ -25,9 +29,10 @@ const chatSchema = new mongoose.Schema({
   timeOfResponseByClinic: { 
     type: Date 
   },
+  // This field is now auto-assigned based on the question text.
   specialization: { 
     type: String, 
-    default: null 
+    default: "General" 
   },
   isEmergency: { 
     type: Boolean, 
@@ -41,7 +46,9 @@ const chatSchema = new mongoose.Schema({
   verifiedByClinic: {
     fullName: { type: String },
     specialization: { type: String },
-    clinicId: { type: String }
+    clinicId: { type: String },
+    description: { type: String },
+    profilePic: { type: String }
   },
   correctedResponseByClinic: { 
     type: String 
