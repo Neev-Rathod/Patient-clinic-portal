@@ -8,6 +8,7 @@ const ClinicDashboard = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [correctedText, setCorrectedText] = useState('');
+  const [filter, setFilter] = useState('all'); // "all", "normal", or "emergency"
   const navigate = useNavigate();
 
   // Fetch clinic profile info (assumed endpoint)
@@ -53,6 +54,17 @@ const ClinicDashboard = () => {
       fetchChats();
     }
   }, [profile]);
+
+  // Filter chats based on the current filter setting
+  const getFilteredChats = () => {
+    if (filter === 'normal') {
+      return chats.filter(chat => !chat.isEmergency);
+    }
+    if (filter === 'emergency') {
+      return chats.filter(chat => chat.isEmergency);
+    }
+    return chats;
+  };
 
   // Handler for marking the chat as correct
   const handleCorrect = async () => {
@@ -107,15 +119,40 @@ const ClinicDashboard = () => {
     navigate('/');
   };
 
+  const filteredChats = getFilteredChats();
+
   return (
     <div className="flex h-screen">
-      {/* Left panel: Chat list */}
+      {/* Left panel: Chat list and filter buttons */}
       <div className="w-1/3 border-r overflow-y-auto p-4">
         <h2 className="text-xl mb-4">Chats for {profile?.specialization}</h2>
-        {chats.length === 0 ? (
+        
+        {/* Filter Buttons */}
+        <div className="flex space-x-2 mb-4">
+          <button 
+            onClick={() => setFilter('all')} 
+            className={`px-3 py-1 rounded ${filter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+          >
+            All Chats
+          </button>
+          <button 
+            onClick={() => setFilter('normal')} 
+            className={`px-3 py-1 rounded ${filter === 'normal' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+          >
+            Normal Chats
+          </button>
+          <button 
+            onClick={() => setFilter('emergency')} 
+            className={`px-3 py-1 rounded ${filter === 'emergency' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+          >
+            Emergency Chats
+          </button>
+        </div>
+        
+        {filteredChats.length === 0 ? (
           <p>No chats available.</p>
         ) : (
-          chats.map(chat => (
+          filteredChats.map(chat => (
             <div 
               key={chat._id}
               className={`p-2 mb-2 border cursor-pointer ${selectedChat && selectedChat._id === chat._id ? 'bg-gray-200' : ''}`}
@@ -123,6 +160,9 @@ const ClinicDashboard = () => {
             >
               <h3 className="font-bold">{chat.chatName}</h3>
               <p className="text-sm truncate">{chat.questionAsked}</p>
+              {chat.isEmergency && (
+                <span className="text-red-600 text-xs font-semibold">Emergency</span>
+              )}
             </div>
           ))
         )}
@@ -144,8 +184,12 @@ const ClinicDashboard = () => {
               )}
             </div>
             <div className="flex space-x-4">
-              <button onClick={handleCorrect} className="bg-green-500 text-white px-4 py-2 rounded">Correct Response</button>
-              <button onClick={handleIncorrect} className="bg-yellow-500 text-white px-4 py-2 rounded">Incorrect Response</button>
+              <button onClick={handleCorrect} className="bg-green-500 text-white px-4 py-2 rounded">
+                Correct Response
+              </button>
+              <button onClick={handleIncorrect} className="bg-yellow-500 text-white px-4 py-2 rounded">
+                Incorrect Response
+              </button>
             </div>
           </div>
         ) : (
@@ -166,8 +210,12 @@ const ClinicDashboard = () => {
               rows={5}
             />
             <div className="flex justify-end space-x-4">
-              <button onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
-              <button onClick={submitCorrectedResponse} className="bg-blue-600 text-white px-4 py-2 rounded">Submit</button>
+              <button onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2 rounded">
+                Cancel
+              </button>
+              <button onClick={submitCorrectedResponse} className="bg-blue-600 text-white px-4 py-2 rounded">
+                Submit
+              </button>
             </div>
           </div>
         </div>

@@ -54,7 +54,7 @@ const callGeminiAPI = async (prompt) => {
 
 // POST /chat/send – Create a new chat (using three Gemini API calls)
 router.post('/send', verifyUser, async (req, res) => {
-  const { text } = req.body;
+  const { text, isEmergency } = req.body; // now accepts isEmergency from the client
   try {
     // 1. Get the AI's answer for the user's question.
     const aiResponseText = await callGeminiAPI(text) || 'AI is currently unavailable. Please try again later.';
@@ -75,7 +75,7 @@ router.post('/send', verifyUser, async (req, res) => {
       questionAsked: text,
       answerByAI: aiResponseText,
       specialization,
-      isEmergency: false,
+      isEmergency: isEmergency || false, // use the flag from the client (default false)
       verificationType: "Unverified"
     });
     await chat.save();
@@ -89,6 +89,7 @@ router.post('/send', verifyUser, async (req, res) => {
     res.status(500).json({ error: 'Error communicating with AI service' });
   }
 });
+
 
 // GET /chat/user – Fetch all chats for the authenticated user
 router.get('/user', verifyUser, async (req, res) => {
