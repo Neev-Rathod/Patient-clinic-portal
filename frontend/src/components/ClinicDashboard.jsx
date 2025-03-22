@@ -25,7 +25,7 @@ const ClinicDashboard = () => {
       navigate('/clinic/login');
     }
   };
-
+console.log(profile,"Hello");
   // Fetch chats for the clinic's specialization using the new endpoint
   const fetchChats = async () => {
     const token = localStorage.getItem('clinicToken');
@@ -65,7 +65,7 @@ const ClinicDashboard = () => {
     }
     return chats;
   };
-
+console.log(chats,"hello")
   // Handler for marking the chat as correct
   const handleCorrect = async () => {
     if (!selectedChat) return;
@@ -123,7 +123,7 @@ const ClinicDashboard = () => {
 
   return (
     <div className="flex h-screen">
-      {/* Left panel: Chat list and filter buttons */}
+      {/* Left panel: Chat list, filter buttons, and analytics button */}
       <div className="w-1/3 border-r overflow-y-auto p-4">
         <h2 className="text-xl mb-4">Chats for {profile?.specialization}</h2>
         
@@ -168,6 +168,14 @@ const ClinicDashboard = () => {
         )}
         <button onClick={handleLogout} className="mt-4 bg-red-500 text-white px-3 py-1 rounded">
           Logout
+        </button>
+
+        {/* Analytics Button */}
+        <button 
+          onClick={() => navigate('/clinic/analytics')}
+          className="mt-4 bg-purple-600 text-white px-3 py-1 rounded block w-full text-center"
+        >
+          Show Analytics
         </button>
       </div>
 

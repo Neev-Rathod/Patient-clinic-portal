@@ -8,6 +8,7 @@ import ClinicLogin from './components/ClinicLogin';
 import ClinicRegister from './components/ClinicRegister';
 import Chat from './components/Chat';
 import ClinicDashboard from './components/ClinicDashboard';
+import ClinicAnalytics from './components/ClinicAnalytics';
 
 function ProtectedRoute({ children, clinicOnly = false }) {
   // If clinicOnly is true, require clinicToken; otherwise, require either token.
@@ -46,6 +47,11 @@ function App() {
           <Route path="/clinic/chats" element={
             <ProtectedRoute clinicOnly={true}>
               <ClinicDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/clinic/analytics" element={
+            <ProtectedRoute clinicOnly={true}>
+              <ClinicAnalytics />
             </ProtectedRoute>
           } />
         </Routes>
