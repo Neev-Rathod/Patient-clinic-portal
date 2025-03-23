@@ -3,15 +3,15 @@ import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Send 'password' field instead of 'pass'
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, { name, password: pass });
+      // Send 'password' field and email instead of name
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, { email, password: pass });
       localStorage.setItem('token', res.data.token);
       navigate('/chat');
     } catch (error) {
@@ -25,10 +25,10 @@ const Login = () => {
       <h2 className="text-2xl mb-4">Patient Login</h2>
       <form onSubmit={handleSubmit} className="flex flex-col">
         <input 
-          type="text" 
-          placeholder="Name" 
-          value={name} 
-          onChange={(e) => setName(e.target.value)} 
+          type="email" 
+          placeholder="Email" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
           className="mb-2 p-2 border"
           required
         />

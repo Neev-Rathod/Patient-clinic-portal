@@ -3,14 +3,14 @@ import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 
 const ClinicLogin = () => {
-  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/clinic/login`, { fullName, password });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/clinic/login`, { email, password });
       localStorage.setItem('clinicToken', res.data.token);
       navigate('/clinic/chats');
     } catch (error) {
@@ -24,10 +24,10 @@ const ClinicLogin = () => {
       <h2 className="text-2xl mb-4">Clinic Login</h2>
       <form onSubmit={handleSubmit} className="flex flex-col">
         <input 
-          type="text" 
-          placeholder="Full Name" 
-          value={fullName} 
-          onChange={(e) => setFullName(e.target.value)} 
+          type="email" 
+          placeholder="Email" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
           className="mb-2 p-2 border"
           required
         />

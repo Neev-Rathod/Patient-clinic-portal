@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
-const Chat = require('./Chat'); // Import Chat model to embed its schema
+const Chat = require('./Chat');
 
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
+  email: { type: String, required: true, unique: true }, // New field
   password: { type: String, required: true },
-  chats: [Chat.schema] // Embed all chats asked by the user
+  chats: [Chat.schema]
 });
 
 module.exports = mongoose.model('User', userSchema);

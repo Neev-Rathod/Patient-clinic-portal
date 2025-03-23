@@ -6,10 +6,16 @@ const router = express.Router();
 
 // Register a new user
 router.post('/register', async (req, res) => {
-  const { name, password } = req.body;
+  const { name, email, password } = req.body;
   try {
+    // Check if email is already registered
+    const existingUser = await User.findOne({ email });
+    if(existingUser) {
+      return res.status(400).json({ error: 'Email already registered' });
+    }
+
     const hashedPass = await bcrypt.hash(password, 10);
-    const user = new User({ name, password: hashedPass });
+    const user = new User({ name, email, password: hashedPass });
     await user.save();
     res.json({ message: 'User registered successfully' });
   } catch (error) {
@@ -19,9 +25,9 @@ router.post('/register', async (req, res) => {
 
 // User login
 router.post('/login', async (req, res) => {
-  const { name, password } = req.body;
+  const { email, password } = req.body;
   try {
-    const user = await User.findOne({ name });
+    const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ error: 'User not found' });
 
     const isMatch = await bcrypt.compare(password, user.password);

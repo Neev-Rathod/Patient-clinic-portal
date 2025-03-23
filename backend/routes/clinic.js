@@ -6,11 +6,18 @@ const router = express.Router();
 
 // Clinic registration route
 router.post('/register', async (req, res) => {
-  const { fullName, password, specialization, clinicId, licensePhoto, profilePic, address, description } = req.body;
+  const { fullName, email, password, specialization, clinicId, licensePhoto, profilePic, address, description } = req.body;
   try {
+    // Check if email is already registered
+    const existingClinic = await Clinic.findOne({ email });
+    if(existingClinic) {
+      return res.status(400).json({ error: 'Email already registered' });
+    }
+
     const hashedPass = await bcrypt.hash(password, 10);
     const clinic = new Clinic({
       fullName,
+      email,
       password: hashedPass,
       specialization,
       clinicId,
@@ -33,16 +40,15 @@ router.post('/register', async (req, res) => {
 
 // Clinic login route
 router.post('/login', async (req, res) => {
-  const { fullName, password } = req.body;
+  const { email, password } = req.body;
   try {
-    const clinic = await Clinic.findOne({ fullName });
+    const clinic = await Clinic.findOne({ email });
     if (!clinic) return res.status(400).json({ error: 'Clinic not found' });
 
     const isMatch = await bcrypt.compare(password, clinic.password);
     if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
 
     const token = jwt.sign({ id: clinic._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    // Optionally send profile details along with token (if needed on login)
     res.json({ token, clinicId: clinic._id, profile: clinic });
   } catch (error) {
     res.status(500).json({ error: error.message });

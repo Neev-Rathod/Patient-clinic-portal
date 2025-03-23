@@ -3,8 +3,8 @@ const Chat = require('./Chat');
 
 const clinicSchema = new mongoose.Schema({
   fullName: { type: String, required: true },
+  email: { type: String, required: true, unique: true }, // New field
   password: { type: String, required: true },
-  // Specialization will be chosen from the provided 20 types via a select on the frontend.
   specialization: { type: String, required: true },
   clinicId: { type: String, required: true },
   licensePhoto: { type: String, required: true },

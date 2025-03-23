@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import LandingPage from './components/LandingPage';
 import Login from './components/Login';
@@ -26,24 +26,40 @@ function ProtectedRoute({ children, clinicOnly = false }) {
   return children;
 }
 
+// A component to wrap routes that need to conditionally show the Navbar.
+const Layout = ({ children }) => {
+  const location = useLocation();
+  // Define routes where you don't want to show the Navbar.
+  const noNavbarRoutes = ['/chat', '/clinic/chats', '/clinic/analytics'];
+  const shouldShowNavbar = !noNavbarRoutes.includes(location.pathname);
+
+  return (
+    <>
+      {shouldShowNavbar && <Navbar />}
+      <div className="">
+        {children}
+      </div>
+    </>
+  );
+};
+
 function App() {
   return (
     <Router>
-      <Navbar />
-      <div className="container mx-auto p-4">
+      <Layout>
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/clinic/login" element={<ClinicLogin />} />
           <Route path="/clinic/register" element={<ClinicRegister />} />
-          {/* Patient chat page */}
+          {/* Patient chat page without Navbar */}
           <Route path="/chat" element={
             <ProtectedRoute>
               <Chat />
             </ProtectedRoute>
           } />
-          {/* Clinic dashboard */}
+          {/* Clinic dashboard pages without Navbar */}
           <Route path="/clinic/chats" element={
             <ProtectedRoute clinicOnly={true}>
               <ClinicDashboard />
@@ -55,7 +71,7 @@ function App() {
             </ProtectedRoute>
           } />
         </Routes>
-      </div>
+      </Layout>
     </Router>
   );
 }

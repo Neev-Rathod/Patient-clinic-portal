@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const ClinicRegister = () => {
   const [formData, setFormData] = useState({
     fullName: '',
+    email: '',
     password: '',
     confirmPassword: '',
     specialization: '',
@@ -32,7 +33,7 @@ const ClinicRegister = () => {
       navigate('/clinic/login');
     } catch (error) {
       console.error(error);
-      alert('Registration failed');
+      alert(error.response?.data?.error || 'Registration failed');
     }
   };
 
@@ -45,6 +46,15 @@ const ClinicRegister = () => {
           type="text" 
           placeholder="Full Name" 
           value={formData.fullName} 
+          onChange={handleChange} 
+          className="mb-2 p-2 border" 
+          required 
+        />
+        <input 
+          name="email" 
+          type="email" 
+          placeholder="Email" 
+          value={formData.email} 
           onChange={handleChange} 
           className="mb-2 p-2 border" 
           required 
