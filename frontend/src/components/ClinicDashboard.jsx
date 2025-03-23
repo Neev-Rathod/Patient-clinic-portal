@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-
+const RenderHTML = ({ htmlString, className = '' }) => {
+  return (
+    <div
+      className={className}
+      dangerouslySetInnerHTML={{ __html: htmlString }}
+    />
+  );
+};
 const ClinicDashboard = () => {
   const [profile, setProfile] = useState(null);
   const [chats, setChats] = useState([]);
@@ -206,8 +213,8 @@ const ClinicDashboard = () => {
                 className={`p-3 hover:bg-gray-200 mb-3 border border-[#bebebe] rounded-md cursor-pointer ${selectedChat && selectedChat._id === chat._id ? 'bg-gray-200' : ''}`}
                 onClick={() => setSelectedChat(chat)}
               >
-                <h3 className="font-bold truncate ">{chat.chatName}</h3>
-                {chat.isEmergency && (
+                        <RenderHTML htmlString={chat.chatName} className="font-bold truncate" />
+                        {chat.isEmergency && (
                   <span className="text-red-600 text-xs font-semibold">Emergency</span>
                 )}
               </div>
@@ -240,7 +247,7 @@ const ClinicDashboard = () => {
             {showPopup && (
               <div
                 ref={popupRef}
-                className="absolute right-4 top-14 bg-white text-black p-4 rounded shadow-lg z-50"
+                className="absolute w-1/3 right-4 top-14 bg-white text-black p-4 rounded shadow-lg z-50"
               >
                 <p><strong>Name:</strong> {profile.fullName}</p>
                 <p><strong>Specialization:</strong> {profile.specialization}</p>
@@ -263,7 +270,7 @@ const ClinicDashboard = () => {
                 {selectedChat.questionAsked}
               </p>
               <div className="w-2/3 bg-[#f6f6f6] rounded-md  items-center relative">
-                <p className=" mt-3 p-4 w-full  pr-10"> {selectedChat.answerByAI}</p>
+              <RenderHTML htmlString={selectedChat.answerByAI} className="mt-3 p-4 w-full pr-10" />
              
                 <div className='flex items-centre justify-between mx-4 pb-2 text-[#636363]'>
                 

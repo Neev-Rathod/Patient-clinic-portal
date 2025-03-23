@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
+const marked = require('marked'); // Import the marked library to convert markdown to HTML
 const Chat = require('../models/Chat');
 const User = require('../models/User');
 const Clinic = require('../models/Clinic');
@@ -57,15 +58,18 @@ router.post('/send', verifyUser, async (req, res) => {
   const { text, isEmergency } = req.body; // now accepts isEmergency from the client
   try {
     // 1. Get the AI's answer for the user's question.
-    const aiResponseText = await callGeminiAPI(text) || 'AI is currently unavailable. Please try again later.';
+    const aiResponseTextRaw = await callGeminiAPI(text) || 'AI is currently unavailable. Please try again later.';
     
+    // Convert markdown (e.g., **bold**) to HTML using marked
+    const aiResponseText = marked.parseInline(aiResponseTextRaw);
+
     // 2. Ask AI to determine the specialization.
     const specializationPrompt = `This is the question: "${text}" what should be the type of doctor we should go among Dermatologist, General, Cardiologist, Gastroenterologist, Orthopedic Surgeon, Neurologist, Psychiatrist/Psychologist, ENT Specialist (Otolaryngologist), Ophthalmologist, Pulmonologist, Endocrinologist, Urologist, Gynecologist (OB/GYN), Pediatrician, Dentist, Oncologist, Rheumatologist, Allergist/Immunologist, Infectious Disease Specialist, Physiotherapist. Provide in one word.`;
     const specializationResponse = await callGeminiAPI(specializationPrompt);
     const specialization = specializationResponse || "General";
 
-    // 3. Ask AI to generate a chat title in about 20 words based on the AI answer.
-    const titlePrompt = `For this message: "${aiResponseText}" what should be the title for this message in about 20 words?`;
+    // 3. Ask AI to generate a chat title in about 5 words.
+    const titlePrompt = `For this message: "${aiResponseText}" what should be the title for this message in about 5 words? just give me the title nothing else`;
     const chatName = await callGeminiAPI(titlePrompt) || 'Chat';
 
     // Create a new Chat document with the received values.
@@ -73,7 +77,7 @@ router.post('/send', verifyUser, async (req, res) => {
       userId: req.userId,
       chatName,
       questionAsked: text,
-      answerByAI: aiResponseText,
+      answerByAI: aiResponseText, // Store the formatted response
       specialization,
       isEmergency: isEmergency || false, // use the flag from the client (default false)
       verificationType: "Unverified"
@@ -89,7 +93,6 @@ router.post('/send', verifyUser, async (req, res) => {
     res.status(500).json({ error: 'Error communicating with AI service' });
   }
 });
-
 
 // GET /chat/user – Fetch all chats for the authenticated user
 router.get('/user', verifyUser, async (req, res) => {
@@ -117,7 +120,6 @@ router.get('/clinic/chats', verifyClinic, async (req, res) => {
   }
 });
 
-// PUT /chat/review/:chatId – Endpoint for clinic to review/update a chat response
 // PUT /chat/review/:chatId – Endpoint for clinic to review/update a chat response
 router.put('/review/:chatId', verifyClinic, async (req, res) => {
   const { chatId } = req.params;
@@ -164,6 +166,5 @@ router.put('/review/:chatId', verifyClinic, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
 
 module.exports = router;

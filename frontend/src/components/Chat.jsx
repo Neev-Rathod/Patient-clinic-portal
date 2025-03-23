@@ -33,6 +33,15 @@ const Navbar = () => {
   );
 };
 
+const RenderHTML = ({ htmlString, className = '' }) => {
+  return (
+    <div
+      className={className}
+      dangerouslySetInnerHTML={{ __html: htmlString }}
+    />
+  );
+};
+
 const Chat = () => {
   const [chatInput, setChatInput] = useState('');
   const [chatList, setChatList] = useState([]);
@@ -226,8 +235,8 @@ const Chat = () => {
                  rounded-md cursor-pointer ${selectedChat && selectedChat._id === chat._id ? 'bg-gray-200' : ''}`}
                 onClick={() => setSelectedChat(chat)}
               >
-                <h3 className="font-bold truncate ">{chat.chatName}</h3>
-              </div>
+                        <RenderHTML htmlString={chat.chatName} className="font-bold truncate" />
+                        </div>
             ))
           )}
          </div>
@@ -251,7 +260,7 @@ const Chat = () => {
                   {isEmergency ? 'Emergency On' : 'Emergency Off'}
                 </button>
               </div>
-              <div className="mx-4 overflow-auto" style={{ height: "calc(100vh - 200px)" }}>
+              <div className="mx-4 overflow-auto" style={{ height: "calc(100vh - 132px)" }}>
                 <p className='justify-self-end p-3 w-2/3 bg-[#f6f6f6] rounded-md'>
                   {selectedChat.questionAsked}
                 </p>
@@ -261,7 +270,7 @@ const Chat = () => {
                       ? 'bg-[#73FA80]'
                       : 'bg-[#FF8E72]'
                   } rounded-md items-center relative`}>
-                  <p className=" mt-3 p-4 w-full  pr-10"> {selectedChat.answerByAI}</p>
+                  <RenderHTML htmlString={selectedChat.answerByAI} className="mt-3 p-4 w-full pr-10" />
                   <button
                     onClick={() => speakText(selectedChat.answerByAI, 'ai')}
                     className={`absolute top-2 p-1 rounded-[50%] right-2 ${speakingMessage === 'ai' ? 'bg-gray-200' : ''}`}
@@ -286,8 +295,8 @@ const Chat = () => {
                 {selectedChat.correctedResponseByClinic  && (selectedChat.verificationType != 'correct') && (
                   <div className="flex items-center mt-2">
                     <div className="w-2/3 bg-[#f6f6f6] rounded-md  items-center relative">
-                      <p className=" mt-3 p-4 w-full  pr-10"> {selectedChat.correctedResponseByClinic}</p>
-                      <button
+                    <RenderHTML htmlString={selectedChat.correctedResponseByClinic} className="mt-3 p-4 w-full pr-10" />
+                    <button
                         onClick={() => speakText(selectedChat.correctedResponseByClinic, 'ai')}
                         className={`absolute top-2 p-1 rounded-[50%] right-2 ${speakingMessage === 'ai' ? 'bg-gray-200' : ''}`}
                       >
