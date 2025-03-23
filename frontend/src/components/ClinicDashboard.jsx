@@ -135,16 +135,97 @@ const ClinicDashboard = () => {
     localStorage.removeItem('clinicToken');
     navigate('/');
   };
+  const TimeDisplay = ({ isoDateTime }) => {
+    // Function to extract and format the time portion in IST
+    const formatTimeInIST = (isoString) => {
+      if (!isoString) return "Invalid Date"; // Handle missing or invalid input
+
+      const date = new Date(isoString);
+
+      // Extract local hours, minutes, and seconds (in IST)
+      const hours = String(date.getHours()).padStart(2, "0"); // Local hours
+      const minutes = String(date.getMinutes()).padStart(2, "0"); // Local minutes
+      const seconds = String(date.getSeconds()).padStart(2, "0"); // Local seconds
+
+      // Return formatted time (adjust as needed)
+      return `${hours}:${minutes}`;
+    };
+
+    return (
+      <p className=''>
+        {/* Call the formatTimeInIST function and display the result */}
+        {formatTimeInIST(isoDateTime)}
+      </p>
+    );
+  };
 
   const filteredChats = getFilteredChats();
   return (
     <>
-      {/* Inline Navbar */}
-      <nav className="bg-blue-600 p-4 text-white flex justify-between items-center relative">
-        <div>
-          <Link to="/" className="mr-4">Home</Link>
+   
+
+      {/* Main Content */}
+      <div className="flex" style={{height:"calc(100vh)"}}>
+        {/* Left panel: Chat list, filter buttons, and analytics button */}
+        <div className="w-[375px] border-r overflow-y-auto p-4">
+        <button 
+            onClick={() => navigate('/clinic/analytics')}
+            className=" mb-2 bg-purple-600 text-white px-3 py-2 rounded block w-full text-center"
+          >
+            Show Analytics
+          </button>
+          <div className="flex  space-x-2 mb-2">
+            
+            <button 
+              onClick={() => setFilter('all')}
+              className={` w-full px-1  rounded ${filter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+            >
+              All Chats
+            </button>
+            <button 
+              onClick={() => setFilter('normal')}
+              className={`w-full  px-1  rounded ${filter === 'normal' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+            >
+              Normal Chats
+            </button>
+            <button 
+              onClick={() => setFilter('emergency')}
+              className={`w-full  px-1 rounded ${filter === 'emergency' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+            >
+              Emergency Chats
+            </button>
+          </div>
+          <div className="w-full h-[1px] bg-[#e7e9ec] mb-2"></div>
+
+          {filteredChats.length === 0 ? (
+            <p>No chats available.</p>
+          ) : (
+            filteredChats.map(chat => (
+              <div
+                key={chat._id}
+                className={`p-3 hover:bg-gray-200 mb-3 border border-[#bebebe] rounded-md cursor-pointer ${selectedChat && selectedChat._id === chat._id ? 'bg-gray-200' : ''}`}
+                onClick={() => setSelectedChat(chat)}
+              >
+                <h3 className="font-bold truncate ">{chat.chatName}</h3>
+                {chat.isEmergency && (
+                  <span className="text-red-600 text-xs font-semibold">Emergency</span>
+                )}
+              </div>
+            ))
+          )}
+       
+         
         </div>
-        {profile ? (
+
+        {/* Right panel: Chat details */}
+        <div className="flex-1  bg-[#F9FBFF]" style={{width:"calc(100vw - 375px)"}}>
+          {selectedChat ? (
+            <div className=''>
+            <div className='w-full bg-white my-2 px-4 flex justify-between border-b-[1px] items-center border-[#c9c9c9]'>
+
+              <h2 className="text-2xl mb-2 truncate mr-4">{selectedChat.chatName}</h2>
+              {/* Emergency Toggle Button */}
+              {profile && (
           <div
             className="cursor-pointer flex items-center"
             onClick={() => setShowPopup(prev => !prev)}
@@ -173,87 +254,44 @@ const ClinicDashboard = () => {
               </div>
             )}
           </div>
-        ) : (
-          <div>
-            <Link to="/clinic/login" className="mr-4">Login as Clinic</Link>
-          </div>
         )}
-      </nav>
-
-      {/* Main Content */}
-      <div className="flex h-screen">
-        {/* Left panel: Chat list, filter buttons, and analytics button */}
-        <div className="w-1/3 border-r overflow-y-auto p-4">
-          <h2 className="text-xl mb-4">Chats for {profile?.specialization}</h2>
-          <div className="flex space-x-2 mb-4">
-            <button 
-              onClick={() => setFilter('all')}
-              className={`px-3 py-1 rounded ${filter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-            >
-              All Chats
-            </button>
-            <button 
-              onClick={() => setFilter('normal')}
-              className={`px-3 py-1 rounded ${filter === 'normal' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-            >
-              Normal Chats
-            </button>
-            <button 
-              onClick={() => setFilter('emergency')}
-              className={`px-3 py-1 rounded ${filter === 'emergency' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-            >
-              Emergency Chats
-            </button>
-          </div>
-          {filteredChats.length === 0 ? (
-            <p>No chats available.</p>
-          ) : (
-            filteredChats.map(chat => (
-              <div
-                key={chat._id}
-                className={`p-2 mb-2 border cursor-pointer ${selectedChat && selectedChat._id === chat._id ? 'bg-gray-200' : ''}`}
-                onClick={() => setSelectedChat(chat)}
-              >
-                <h3 className="font-bold">{chat.chatName}</h3>
-                <p className="text-sm truncate">{chat.questionAsked}</p>
-                {chat.isEmergency && (
-                  <span className="text-red-600 text-xs font-semibold">Emergency</span>
-                )}
-              </div>
-            ))
-          )}
-          <button onClick={handleLogout} className="mt-4 bg-red-500 text-white px-3 py-1 rounded">
-            Logout
-          </button>
-          <button 
-            onClick={() => navigate('/clinic/analytics')}
-            className="mt-4 bg-purple-600 text-white px-3 py-1 rounded block w-full text-center"
-          >
-            Show Analytics
-          </button>
-        </div>
-
-        {/* Right panel: Chat details */}
-        <div className="flex-1 p-4 overflow-y-auto">
-          {selectedChat ? (
-            <div>
-              <h2 className="text-2xl mb-2">{selectedChat.chatName}</h2>
-              <div className="mb-4">
-                <p><strong>Question:</strong> {selectedChat.questionAsked}</p>
-                <p><strong>AI Response:</strong> {selectedChat.answerByAI}</p>
-                {selectedChat.correctedResponseByClinic && (
-                  <p><strong>Clinic Response:</strong> {selectedChat.correctedResponseByClinic}</p>
-                )}
-              </div>
-              <div className="flex space-x-4">
-                <button onClick={handleCorrect} className="bg-green-500 text-white px-4 py-2 rounded">
-                  Correct Response
-                </button>
-                <button onClick={handleIncorrect} className="bg-yellow-500 text-white px-4 py-2 rounded">
-                  Incorrect Response
-                </button>
-              </div>
+              
             </div>
+      
+            <div className="mx-4 overflow-auto" style={{height:"calc(100vh - 122px)"}}>
+              <p className='justify-self-end p-3 w-2/3 bg-[#f6f6f6] rounded-md'>
+                {selectedChat.questionAsked}
+              </p>
+              <div className="w-2/3 bg-[#f6f6f6] rounded-md  items-center relative">
+                <p className=" mt-3 p-4 w-full  pr-10"> {selectedChat.answerByAI}</p>
+             
+                <div className='flex items-centre justify-between mx-4 pb-2 text-[#636363]'>
+                
+                {selectedChat.verificationType == 'Unverified' ? (
+                  <p>Unverified by the clinic</p>
+                ) : selectedChat.verificationType == 'Correct' ? (
+                <p>Correct Answer by AI</p>
+                ) : (
+                <p>Incorrect Answer by AI</p>
+                )}
+                <TimeDisplay isoDateTime={selectedChat.timeOfResponseByAI} />
+                </div>
+                
+
+                {/* <p>{selectedChat.timeOfResponseByAI}</p> */}
+              </div>
+    
+            </div>
+            <div className="flex w-full space-x-4 px-4 mt-2">
+              <button onClick={handleCorrect} className="bg-[#8dff89] w-1/2  px-4 py-2 rounded border-1 border-[#9d9d9d]">
+                Correct Response
+              </button>
+              <button onClick={handleIncorrect} className="bg-[#ff8e72] w-1/2  px-4 py-2 rounded border-1 border-[#9d9d9d]">
+                Incorrect Response
+              </button>
+            </div>
+          </div>
+           
           ) : (
             <p>Select a chat to view details.</p>
           )}
@@ -261,26 +299,28 @@ const ClinicDashboard = () => {
 
         {/* Modal for incorrect response */}
         {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center">
-            <div className="bg-white p-6 rounded shadow-md w-1/2">
+          <>
+          <div className="absolute top-0 left-0  z-10 w-full h-screen bg-black opacity-30 flex justify-center items-center">
+            </div>
+            <div className="bg-white p-6 rounded shadow-md absolute w-[500px] z-20 top-[50%] left-[50%] translate-[-50%]" >
               <h3 className="text-xl mb-4">Provide Correct Response</h3>
               <textarea
-                className="w-full border p-2 mb-4"
+                className="w-full border p-2 mb-4 resize-none"
                 placeholder="Enter the correct response here..."
                 value={correctedText}
                 onChange={(e) => setCorrectedText(e.target.value)}
-                rows={5}
+                rows={10}
               />
-              <div className="flex justify-end space-x-4">
-                <button onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2 rounded">
+              <div className="flex w-full space-x-4">
+                <button onClick={() => setShowModal(false)} className="bg-gray-500 w-1/2 text-white px-4 py-2 rounded ">
                   Cancel
                 </button>
-                <button onClick={submitCorrectedResponse} className="bg-blue-600 text-white px-4 py-2 rounded">
+                <button onClick={submitCorrectedResponse} className="bg-blue-600 w-1/2 text-white px-4 py-2 rounded">
                   Submit
                 </button>
               </div>
             </div>
-          </div>
+          </>
         )}
       </div>
     </>

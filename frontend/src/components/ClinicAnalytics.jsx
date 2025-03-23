@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Line, Doughnut } from 'react-chartjs-2';
+import { Line, Pie } from 'react-chartjs-2';
 import { useNavigate } from 'react-router-dom';
 import {
   Chart as ChartJS,
@@ -102,16 +102,14 @@ const ClinicAnalytics = () => {
     };
   };
 
-  // Data for 1st graph: All chats over time
+  // Data for the first graph: All prompts received (using all chats over time)
   const allChatsData = groupChatsByDate(filteredChatsByTime);
 
-  // Data for 2nd graph: Verified chats over time (by logged in clinic)
+  // Data for the second graph: Number of prompts resolved by you (using verified chats over time)
   const verifiedChats = filteredChatsByTime.filter(chat => profile && chat.verifiedByClinic?.clinicId === profile.clinicId);
-
-  
   const verifiedChatsData = groupChatsByDate(verifiedChats);
 
-  // Data for 3rd graph: Emergency vs Normal chats counts
+  // Data for the 3rd graph: Emergency vs Normal chats counts (converted to Pie)
   const emergencyCount = chats.filter(chat => chat.isEmergency).length;
   const normalCount = chats.filter(chat => !chat.isEmergency).length;
   const emergencyChartData = {
@@ -124,7 +122,7 @@ const ClinicAnalytics = () => {
     ],
   };
 
-  // Data for 4th graph: Verification type breakdown
+  // Data for the 4th graph: Verification breakdown (converted to Pie)
   const correctCount = chats.filter(chat => chat.verificationType === 'correct').length;
   const incorrectCount = chats.filter(chat => chat.verificationType === 'incorrect').length;
   const unverifiedCount = chats.filter(chat => !chat.verificationType).length;
@@ -138,9 +136,10 @@ const ClinicAnalytics = () => {
     ],
   };
 
-  // Chart options for line charts
+  // Chart options for line charts with reduced height
   const lineOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         display: false,
@@ -170,51 +169,54 @@ const ClinicAnalytics = () => {
         ))}
       </div>
       
+      {/* Full-width Line Charts with fixed height */}
+      <div className="mb-6 border p-4 rounded w-full" style={{ height: '300px' }}>
+        <h2 className="text-xl mb-2">All prompts received</h2>
+        <Line
+          data={{
+            labels: allChatsData.labels,
+            datasets: [{
+              label: 'Prompts',
+              data: allChatsData.data,
+              borderColor: '#36A2EB',
+              backgroundColor: '#36A2EB',
+            }],
+          }}
+          options={lineOptions}
+        />
+      </div>
+      <div className="mb-6 border p-4 rounded w-full" style={{ height: '300px' }}>
+        <h2 className="text-xl mb-2">Number of prompts resolved by you</h2>
+        <Line
+          data={{
+            labels: verifiedChatsData.labels,
+            datasets: [{
+              label: 'Resolved Prompts',
+              data: verifiedChatsData.data,
+              borderColor: '#4BC0C0',
+              backgroundColor: '#4BC0C0',
+            }],
+          }}
+          options={lineOptions}
+        />
+      </div>
+
+      {/* Grid for remaining charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* 1st Graph: All Chats Over Time */}
-        <div className="border p-4 rounded">
-          <h2 className="text-xl mb-2">All Chats Over Time</h2>
-          <Line
-            data={{
-              labels: allChatsData.labels,
-              datasets: [{
-                label: 'Chats',
-                data: allChatsData.data,
-                borderColor: '#36A2EB',
-                backgroundColor: '#36A2EB',
-              }],
-            }}
-            options={lineOptions}
-          />
-        </div>
-
-        {/* 2nd Graph: Verified Chats Over Time */}
-        <div className="border p-4 rounded">
-          <h2 className="text-xl mb-2">Verified Chats Over Time</h2>
-          <Line
-            data={{
-              labels: verifiedChatsData.labels,
-              datasets: [{
-                label: 'Verified Chats',
-                data: verifiedChatsData.data,
-                borderColor: '#4BC0C0',
-                backgroundColor: '#4BC0C0',
-              }],
-            }}
-            options={lineOptions}
-          />
-        </div>
-
-        {/* 3rd Graph: Emergency vs Normal Chats */}
-        <div className="border p-4 rounded">
+        {/* 3rd Graph: Emergency vs Normal Chats as a Pie Chart */}
+        <div className="border p-4 rounded flex flex-col items-center">
           <h2 className="text-xl mb-2">Emergency vs Normal Chats</h2>
-          <Doughnut data={emergencyChartData} />
+          <div style={{ width: '300px', height: '300px' }}>
+            <Pie data={emergencyChartData} options={{ maintainAspectRatio: false }} />
+          </div>
         </div>
 
-        {/* 4th Graph: Verification Breakdown */}
-        <div className="border p-4 rounded">
+        {/* 4th Graph: Verification Breakdown as a smaller Pie Chart */}
+        <div className="border p-4 rounded flex flex-col items-center">
           <h2 className="text-xl mb-2">Verification Breakdown</h2>
-          <Doughnut data={verificationChartData} />
+          <div style={{ width: '300px', height: '300px' }}>
+            <Pie data={verificationChartData} options={{ maintainAspectRatio: false }} />
+          </div>
         </div>
       </div>
     </div>
